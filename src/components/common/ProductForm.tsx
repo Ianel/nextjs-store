@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 const formSchema = z.object({
     title: z.string({
@@ -93,7 +94,12 @@ export default function ProductForm() {
     }
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <motion.form
+                initial={{ y: -30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 1.5 }}
+                onSubmit={form.handleSubmit(onSubmit)}
+            >
                 <section className="space-y-8 gap-x-4 grid grid-cols-1 md:grid-cols-2 items-baseline max-w-[800px]">
                     <FormField
                         control={form.control}
@@ -178,7 +184,7 @@ export default function ProductForm() {
                         Submit
                     </Button>
                 )}
-            </form>
+            </motion.form>
         </Form>
     );
 }

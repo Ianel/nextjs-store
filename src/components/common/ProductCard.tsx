@@ -22,6 +22,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function ProductCard({ product }) {
     const mutation = useMutation({
@@ -53,91 +54,103 @@ export default function ProductCard({ product }) {
     });
 
     return (
-        <Card className="md:w-72 p-0 relative flex flex-col justify-between">
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Image
-                        width={400}
-                        height={200}
-                        src={product.image}
-                        alt="Dummy image"
-                        className="rounded-t-xl cursor-pointer object-contain w-96 md:w-72 h-72"
-                    />
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>{product.title}</DialogTitle>
-                    </DialogHeader>
+        <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 3 }}
+            className="flex flex-col justify-stretch"
+        >
+            <Card className="md:w-72 p-0 relative flex flex-col justify-between grow">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Image
+                            width={400}
+                            height={200}
+                            src={product.image}
+                            alt="Dummy image"
+                            className="rounded-t-xl cursor-pointer object-contain w-96 md:w-72 h-72"
+                        />
+                    </DialogTrigger>
 
-                    <Image
-                        className="object-contain w-80 h-64 mx-auto"
-                        width={400}
-                        height={200}
-                        src={product.image}
-                        alt={product.title}
-                    />
-                    <section className="flex flex-col gap-1.5">
-                        <h3 className="text-slate-500 font-semibold">
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>{product.title}</DialogTitle>
+                        </DialogHeader>
+
+                        <Image
+                            className="object-contain w-80 h-64 mx-auto"
+                            width={400}
+                            height={200}
+                            src={product.image}
+                            alt={product.title}
+                        />
+                        <section className="flex flex-col gap-1.5">
+                            <h3 className="text-slate-500 font-semibold">
+                                ${product.price}
+                            </h3>
+                            <p>{product.description}</p>
+                        </section>
+                    </DialogContent>
+                </Dialog>
+
+                <div className="absolute top-4 right-4 bg-chart-2 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {product.category}
+                </div>
+
+                <CardContent className="pb-6 flex flex-col gap-2">
+                    <section>
+                        <h3 className="font-bold">{product.title}</h3>
+                        <h4 className="text-slate-500 font-semibold">
                             ${product.price}
-                        </h3>
-                        <p>{product.description}</p>
+                        </h4>
                     </section>
-                </DialogContent>
-            </Dialog>
-
-            <div className="absolute top-4 right-4 bg-chart-2 text-white px-3 py-1 rounded-full text-sm font-medium">
-                {product.category}
-            </div>
-
-            <CardContent className="pb-6 flex flex-col gap-2">
-                <section>
-                    <h3 className="font-bold">{product.title}</h3>
-                    <h4 className="text-slate-500 font-semibold">
-                        ${product.price}
-                    </h4>
-                </section>
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-                    <Link href={`/product/edit/${product.id}`}>
-                        <Button
-                            className="cursor-pointer w-full"
-                            variant={"secondary"}
-                        >
-                            Edit
-                        </Button>
-                    </Link>
-
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                    <section className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                        <Link href={`/product/edit/${product.id}`}>
                             <Button
-                                className="cursor-pointer"
-                                variant={"destructive"}
+                                className="cursor-pointer w-full"
+                                variant={"secondary"}
                             >
-                                Delete
+                                Edit
                             </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    Are you absolutely sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will
-                                    permanently delete your account and remove
-                                    your data from our servers.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={() => mutation.mutate(product.id)}
+                        </Link>
+
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    className="cursor-pointer"
+                                    variant={"destructive"}
                                 >
-                                    Continue
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </section>
-            </CardContent>
-        </Card>
+                                    Delete
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Are you absolutely sure?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will
+                                        permanently delete your account and
+                                        remove your data from our servers.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                        Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() =>
+                                            mutation.mutate(product.id)
+                                        }
+                                    >
+                                        Continue
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </section>
+                </CardContent>
+            </Card>
+        </motion.div>
     );
 }

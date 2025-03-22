@@ -10,7 +10,7 @@ export default function SiteHeader() {
     const router = useRouter();
 
     return (
-        <header className="flex flex-row justify-between items-center bg-slate-100 py-3 px-8">
+        <header className="flex flex-row justify-between items-center bg-slate-100 px-8 py-5">
             <Link href={"/"}>
                 <h1 className={`${pacifico.className} text-2xl`}>Story</h1>
             </Link>

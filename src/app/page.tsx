@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Home() {
     const [productName, setProductName] = useState("");
@@ -55,8 +56,6 @@ export default function Home() {
                 });
 
             setFilteredProducts(tempProducts);
-
-            console.log({ tempProducts });
         },
         [products]
     );
@@ -103,7 +102,11 @@ export default function Home() {
 
     return (
         <div className="p-8">
-            <section>
+            <motion.section
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 5 }}
+            >
                 <h2 className="font-bold mb-4">Filters</h2>
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div className="flex flex-col gap-1">
@@ -149,13 +152,18 @@ export default function Home() {
                         <RefreshCcw size={24} /> Reset filters
                     </Button>
                 </section>
-            </section>
-            <section className="mt-8 flex flex-row flex-wrap justify-between items-stretch gap-4">
+            </motion.section>
+            <motion.section
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 5 }}
+                className="mt-8 flex flex-row flex-wrap justify-between items-stretch gap-4"
+            >
                 {filteredProducts &&
                     filteredProducts.map((product, index) => (
                         <ProductCard product={product} key={index} />
                     ))}
-            </section>
+            </motion.section>
         </div>
     );
 }
