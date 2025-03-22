@@ -13,8 +13,12 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
+    const [productName, setProductName] = useState("");
+    const [productCategory, setProductCategory] = useState("all");
+
     const {
         isPending,
         error,
@@ -22,12 +26,48 @@ export default function Home() {
     } = useQuery({
         queryKey: ["repoData"],
         queryFn: () =>
-            fetch("https://fakestoreapi.com/products").then((response) =>
-                response.json()
-            ),
+            fetch("https://fakestoreapi.com/products", {
+                cache: "force-cache",
+            }).then((response) => response.json()),
     });
 
-    console.log(products);
+    const [filteredProducts, setFilteredProducts] = useState(products);
+
+    const productCategories =
+        products && new Set(products.map((p) => p.category)).values();
+
+    const handleFilteredProducts = useCallback(
+        (title, category) => {
+            const tempProducts =
+                products &&
+                products.filter((p) => {
+                    if (category == "all") {
+                        return p.title
+                            .toLowerCase()
+                            .includes(title.toLowerCase());
+                    }
+
+                    return (
+                        p.title.toLowerCase().includes(title.toLowerCase()) &&
+                        p.category === category
+                    );
+                });
+
+            setFilteredProducts(tempProducts);
+
+            console.log({ tempProducts });
+        },
+        [products]
+    );
+
+    const resetFilters = () => {
+        setProductName("");
+        setProductCategory("all");
+    };
+
+    useEffect(() => {
+        handleFilteredProducts(productName, productCategory);
+    }, [productCategory, handleFilteredProducts, productName]);
 
     if (isPending) return "Loading...";
 
@@ -40,29 +80,50 @@ export default function Home() {
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div className="flex flex-col gap-1">
                         <Label>Product Name: </Label>
-                        <Input placeholder="Enter the name of a product" />
+                        <Input
+                            onChange={(e) => setProductName(e.target.value)}
+                            value={productName}
+                            placeholder="Enter the name of a product"
+                        />
                     </div>
                     <div className="flex flex-col gap-1">
                         <Label>Product Category: </Label>
-                        <Select>
+                        <Select
+                            value={productCategory}
+                            onValueChange={(value) => {
+                                setProductCategory(value);
+                            }}
+                        >
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="all">all</SelectItem>
+                                {productCategories &&
+                                    Array.from(productCategories).map(
+                                        (category: any, index) => (
+                                            <SelectItem
+                                                key={index}
+                                                value={category}
+                                            >
+                                                {category}
+                                            </SelectItem>
+                                        )
+                                    )}
+                                {/* 
                                 <SelectItem value="dark">Dark</SelectItem>
-                                <SelectItem value="system">System</SelectItem>
+                                <SelectItem value="system">System</SelectItem> */}
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button variant={"default"}>
+                    <Button variant={"default"} onClick={resetFilters}>
                         <RefreshCcw size={24} /> Reset filters
                     </Button>
                 </section>
             </section>
             <section className="mt-8 flex flex-row flex-wrap justify-between items-stretch gap-4">
-                {products &&
-                    products.map((product, index) => (
+                {filteredProducts &&
+                    filteredProducts.map((product, index) => (
                         <ProductCard product={product} key={index} />
                     ))}
             </section>
