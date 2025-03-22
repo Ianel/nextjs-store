@@ -14,14 +14,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const formSchema = z.object({
     title: z.string({
         required_error: "Title is required.",
     }),
-    price: z.number({
+    price: z.string({
         required_error: "Price is required.",
-        invalid_type_error: "Price must be a number",
     }),
     description: z.string({
         required_error: "Description is required.",
@@ -35,6 +36,34 @@ const formSchema = z.object({
 });
 
 export default function ProductForm() {
+    const mutation = useMutation({
+        mutationFn: (product) => {
+            return fetch("https://fakestoreapi.com/products", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(product),
+            });
+        },
+        onError() {
+            toast("Failed to add product", {
+                position: "top-center",
+                dismissible: true,
+                style: {
+                    backgroundColor: "#DC2626",
+                    color: "white",
+                },
+            });
+        },
+        onSuccess() {
+            toast("Product added successfully", {
+                position: "top-center",
+                dismissible: true,
+            });
+        },
+    });
+
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -44,12 +73,19 @@ export default function ProductForm() {
     function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        console.log(values);
+        const newProduct = {
+            id: Math.ceil(Math.random() * 100) + 1,
+            ...values,
+            price: parseFloat(values.price),
+        };
+
+        console.log({ newProduct });
+        mutation.mutate(newProduct);
     }
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <section className="space-y-8 gap-x-4 grid grid-cols-1 md:grid-cols-2 items-baseline">
+                <section className="space-y-8 gap-x-4 grid grid-cols-1 md:grid-cols-2 items-baseline max-w-[800px]">
                     <FormField
                         control={form.control}
                         name="title"
@@ -70,7 +106,11 @@ export default function ProductForm() {
                             <FormItem>
                                 <FormLabel>Price</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="price" {...field} />
+                                    <Input
+                                        type="number"
+                                        placeholder="price"
+                                        {...field}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -107,7 +147,7 @@ export default function ProductForm() {
                     control={form.control}
                     name="description"
                     render={({ field }) => (
-                        <FormItem className="mt-8 md:mt-0">
+                        <FormItem className="mt-8 md:mt-0 max-w-[800px]">
                             <FormLabel>Description</FormLabel>
                             <FormControl>
                                 <Textarea
@@ -119,9 +159,16 @@ export default function ProductForm() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className="mt-8 w-full">
-                    Submit
-                </Button>
+
+                {mutation.isPending ? (
+                    <Button disabled type="submit" className={`mt-8 w-full`}>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                    </Button>
+                ) : (
+                    <Button type="submit" className={`mt-8 w-full`}>
+                        Submit
+                    </Button>
+                )}
             </form>
         </Form>
     );

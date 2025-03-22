@@ -3,6 +3,7 @@ import "./globals.css";
 import SiteHeader from "@/components/common/SiteHeader";
 import { poppins } from "@/lib/fonts";
 import { Provider } from "@/components/common/QueryProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
     title: "Story",
@@ -21,6 +22,7 @@ export default function RootLayout({
                     <SiteHeader />
                     <main>{children}</main>
                 </Provider>
+                <Toaster />
             </body>
         </html>
     );
