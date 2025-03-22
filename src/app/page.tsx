@@ -1,3 +1,5 @@
+"use client";
+
 import ProductCard from "@/components/common/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +11,28 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 
 export default function Home() {
+    const {
+        isPending,
+        error,
+        data: products,
+    } = useQuery({
+        queryKey: ["repoData"],
+        queryFn: () =>
+            fetch("https://fakestoreapi.com/products").then((response) =>
+                response.json()
+            ),
+    });
+
+    console.log(products);
+
+    if (isPending) return "Loading...";
+
+    if (error) return "An error has occurred: " + error.message;
+
     return (
         <div className="p-8">
             <section>
@@ -40,9 +61,10 @@ export default function Home() {
                 </section>
             </section>
             <section className="mt-8 flex flex-row flex-wrap justify-between items-stretch gap-4">
-                {Array.from({ length: 10 }).map((_, index) => (
-                    <ProductCard key={index} />
-                ))}
+                {products &&
+                    products.map((product, index) => (
+                        <ProductCard product={product} key={index} />
+                    ))}
             </section>
         </div>
     );

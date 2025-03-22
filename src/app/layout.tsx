@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SiteHeader from "@/components/common/SiteHeader";
 import { poppins } from "@/lib/fonts";
+import { Provider } from "@/components/common/QueryProvider";
 
 export const metadata: Metadata = {
     title: "Story",
@@ -16,8 +17,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${poppins.className} antialiased`}>
-                <SiteHeader />
-                <main>{children}</main>
+                <Provider>
+                    <SiteHeader />
+                    <main>{children}</main>
+                </Provider>
             </body>
         </html>
     );

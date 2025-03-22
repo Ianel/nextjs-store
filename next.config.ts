@@ -6,15 +6,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'picsum.photos',
+        hostname: 'fakestoreapi.com',
         port: '',
-        pathname: '/400/200',
+        pathname: '/img/*',
         search: '',
       },
     ],
   }
 };
 
-
+/* https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg */
 
 export default nextConfig;
