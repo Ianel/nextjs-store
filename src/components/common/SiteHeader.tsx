@@ -1,5 +1,6 @@
 "use client";
 
+import { pacifico } from "@/lib/fonts";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -11,10 +12,13 @@ export default function SiteHeader() {
     return (
         <header className="flex flex-row justify-between items-center bg-slate-100 py-3 px-8">
             <Link href={"/"}>
-                <h1>Story</h1>
+                <h1 className={`${pacifico.className} text-2xl`}>Story</h1>
             </Link>
             <aside>
-                <Button onClick={() => router.push("/product/add")}>
+                <Button
+                    className="cursor-pointer"
+                    onClick={() => router.push("/product/add")}
+                >
                     <Plus size={24} /> Add product
                 </Button>
             </aside>

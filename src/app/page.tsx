@@ -11,6 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -24,7 +25,7 @@ export default function Home() {
         error,
         data: products,
     } = useQuery({
-        queryKey: ["repoData"],
+        queryKey: ["allProducts"],
         queryFn: () =>
             fetch("https://fakestoreapi.com/products", {
                 cache: "force-cache",
@@ -69,7 +70,34 @@ export default function Home() {
         handleFilteredProducts(productName, productCategory);
     }, [productCategory, handleFilteredProducts, productName]);
 
-    if (isPending) return "Loading...";
+    if (isPending) {
+        return (
+            <section className="p-8">
+                <Skeleton className="w-64 h-8 mb-4" />
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <Skeleton className="w-full h-8" />
+                    <Skeleton className="w-full h-8" />
+                    <Skeleton className="w-full h-8" />
+                </section>
+                <section className="mt-8 flex flex-row flex-wrap justify-between items-stretch gap-4">
+                    {Array.from({ length: 10 }).map((n, index) => (
+                        <div
+                            key={index}
+                            className="gap-4 flex flex-col w-full md:w-72"
+                        >
+                            <Skeleton className="w-full md:w-72 h-[240px] rounded-xl" />
+                            <Skeleton className="w-full md:w-56 h-8" />
+                            <Skeleton className="w-32 h-8" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Skeleton className="rounded-lg w-full h-8" />
+                                <Skeleton className="rounded-lg w-full h-8" />
+                            </div>
+                        </div>
+                    ))}
+                </section>
+            </section>
+        );
+    }
 
     if (error) return "An error has occurred: " + error.message;
 
@@ -110,13 +138,14 @@ export default function Home() {
                                             </SelectItem>
                                         )
                                     )}
-                                {/* 
-                                <SelectItem value="dark">Dark</SelectItem>
-                                <SelectItem value="system">System</SelectItem> */}
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button variant={"default"} onClick={resetFilters}>
+                    <Button
+                        className="cursor-pointer"
+                        variant={"default"}
+                        onClick={resetFilters}
+                    >
                         <RefreshCcw size={24} /> Reset filters
                     </Button>
                 </section>

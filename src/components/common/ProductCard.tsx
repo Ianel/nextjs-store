@@ -8,8 +8,50 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 export default function ProductCard({ product }) {
+    const mutation = useMutation({
+        mutationFn: (productId) => {
+            return fetch(`https://fakestoreapi.com/products/${productId}`, {
+                method: "DELETE",
+            });
+        },
+        onError() {
+            toast("Failed to delete product", {
+                position: "top-center",
+                dismissible: true,
+                style: {
+                    backgroundColor: "##DC3E42",
+                    color: "white",
+                },
+            });
+        },
+        onSuccess() {
+            toast("Product deleted successfully", {
+                position: "top-center",
+                dismissible: true,
+                style: {
+                    backgroundColor: "#2B9A66",
+                    color: "white",
+                },
+            });
+        },
+    });
+
     return (
         <Card className="md:w-72 p-0 relative flex flex-col justify-between">
             <Dialog>
@@ -19,7 +61,7 @@ export default function ProductCard({ product }) {
                         height={200}
                         src={product.image}
                         alt="Dummy image"
-                        className="rounded-t-xl cursor-pointer object-contain w-72 h-72"
+                        className="rounded-t-xl cursor-pointer object-contain w-96 md:w-72 h-72"
                     />
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
@@ -27,6 +69,13 @@ export default function ProductCard({ product }) {
                         <DialogTitle>{product.title}</DialogTitle>
                     </DialogHeader>
 
+                    <Image
+                        className="object-contain w-80 h-64 mx-auto"
+                        width={400}
+                        height={200}
+                        src={product.image}
+                        alt={product.title}
+                    />
                     <section className="flex flex-col gap-1.5">
                         <h3 className="text-slate-500 font-semibold">
                             ${product.price}
@@ -48,8 +97,45 @@ export default function ProductCard({ product }) {
                     </h4>
                 </section>
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-                    <Button variant={"secondary"}>Edit</Button>
-                    <Button variant={"destructive"}>Delete</Button>
+                    <Link href={`/product/edit/${product.id}`}>
+                        <Button
+                            className="cursor-pointer w-full"
+                            variant={"secondary"}
+                        >
+                            Edit
+                        </Button>
+                    </Link>
+
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                className="cursor-pointer"
+                                variant={"destructive"}
+                            >
+                                Delete
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    Are you absolutely sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will
+                                    permanently delete your account and remove
+                                    your data from our servers.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={() => mutation.mutate(product.id)}
+                                >
+                                    Continue
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </section>
             </CardContent>
         </Card>

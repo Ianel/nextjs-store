@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -22,7 +22,7 @@ const formSchema = z.object({
     title: z.string({
         required_error: "Title is required.",
     }),
-    price: z.string({
+    price: z.number({
         required_error: "Price is required.",
     }),
     description: z.string({
@@ -36,13 +36,29 @@ const formSchema = z.object({
     }),
 });
 
-export default function ProductForm() {
+export default function ProductFormUpdate({
+    productId,
+}: {
+    productId: number;
+}) {
     const router = useRouter();
+
+    const {
+        isPending,
+        error,
+        data: product,
+    } = useQuery({
+        queryKey: ["singleProduct"],
+        queryFn: () =>
+            fetch(`https://fakestoreapi.com/products/${productId}`).then(
+                (response) => response.json()
+            ),
+    });
 
     const mutation = useMutation({
         mutationFn: (product) => {
-            return fetch("https://fakestoreapi.com/products", {
-                method: "POST",
+            return fetch(`https://fakestoreapi.com/products/${productId}`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -50,7 +66,7 @@ export default function ProductForm() {
             });
         },
         onError() {
-            toast("Failed to add product", {
+            toast("Failed to update product", {
                 position: "top-center",
                 dismissible: true,
                 style: {
@@ -60,7 +76,7 @@ export default function ProductForm() {
             });
         },
         onSuccess() {
-            toast("Product added successfully", {
+            toast("Product updated successfully", {
                 position: "top-center",
                 dismissible: true,
                 style: {
@@ -80,14 +96,14 @@ export default function ProductForm() {
     function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        const newProduct = {
-            id: Math.ceil(Math.random() * 100) + 1,
+        const updatedProduct = {
+            id: productId,
             ...values,
             price: parseFloat(values.price),
         };
 
-        console.log({ newProduct });
-        mutation.mutate(newProduct);
+        console.log({ updatedProduct });
+        mutation.mutate(updatedProduct);
 
         router.push("/");
     }
@@ -96,6 +112,7 @@ export default function ProductForm() {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <section className="space-y-8 gap-x-4 grid grid-cols-1 md:grid-cols-2 items-baseline max-w-[800px]">
                     <FormField
+                        defaultValue={product && product.title}
                         control={form.control}
                         name="title"
                         render={({ field }) => (
@@ -109,6 +126,7 @@ export default function ProductForm() {
                         )}
                     />
                     <FormField
+                        defaultValue={product && product.price}
                         control={form.control}
                         name="price"
                         render={({ field }) => (
@@ -126,6 +144,7 @@ export default function ProductForm() {
                         )}
                     />
                     <FormField
+                        defaultValue={product && product.category}
                         control={form.control}
                         name="category"
                         render={({ field }) => (
@@ -139,6 +158,7 @@ export default function ProductForm() {
                         )}
                     />
                     <FormField
+                        defaultValue={product && product.image}
                         control={form.control}
                         name="image"
                         render={({ field }) => (
@@ -153,6 +173,7 @@ export default function ProductForm() {
                     />
                 </section>
                 <FormField
+                    defaultValue={product && product.description}
                     control={form.control}
                     name="description"
                     render={({ field }) => (
