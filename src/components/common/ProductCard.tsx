@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import {
@@ -23,8 +25,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function ProductCard({ product }) {
+    const router = useRouter();
+
     const mutation = useMutation({
         mutationFn: (productId) => {
             return fetch(`https://fakestoreapi.com/products/${productId}`, {
@@ -105,14 +110,17 @@ export default function ProductCard({ product }) {
                         </h4>
                     </section>
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-                        <Link href={`/product/edit/${product.id}`}>
-                            <Button
-                                className="cursor-pointer w-full"
-                                variant={"secondary"}
-                            >
-                                Edit
-                            </Button>
-                        </Link>
+                        {/*   <Link href={`/product/edit/${product.id}`}> */}
+                        <Button
+                            className="cursor-pointer w-full"
+                            variant={"secondary"}
+                            onClick={() =>
+                                router.push(`/product/edit/${product.id}`)
+                            }
+                        >
+                            Edit
+                        </Button>
+                        {/* </Link> */}
 
                         <AlertDialog>
                             <AlertDialogTrigger asChild>

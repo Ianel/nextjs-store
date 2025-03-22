@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const formSchema = z.object({
     title: z.string({
@@ -38,12 +39,14 @@ const formSchema = z.object({
 
 export default function ProductFormUpdate({
     productId,
+    productData,
 }: {
     productId: number;
+    productData: any;
 }) {
     const router = useRouter();
 
-    const {
+    /*  const {
         isPending,
         error,
         data: product,
@@ -53,7 +56,7 @@ export default function ProductFormUpdate({
             fetch(`https://fakestoreapi.com/products/${productId}`).then(
                 (response) => response.json()
             ),
-    });
+    }); */
 
     const mutation = useMutation({
         mutationFn: (product) => {
@@ -87,9 +90,18 @@ export default function ProductFormUpdate({
         },
     });
 
+    console.log("Product Data", productData);
+
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            title: productData?.title || "",
+            description: productData?.description || "",
+            category: productData?.category || "",
+            price: productData?.price || "",
+            image: productData?.image || "",
+        },
     });
 
     // 2. Define a submit handler.
@@ -97,13 +109,15 @@ export default function ProductFormUpdate({
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         const updatedProduct = {
-            id: productId,
+            id: parseInt(productId),
             ...values,
             price: parseFloat(values.price),
         };
 
         console.log({ updatedProduct });
         mutation.mutate(updatedProduct);
+
+        form.reset();
 
         router.push("/");
     }
@@ -112,7 +126,6 @@ export default function ProductFormUpdate({
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <section className="space-y-8 gap-x-4 grid grid-cols-1 md:grid-cols-2 items-baseline max-w-[800px]">
                     <FormField
-                        defaultValue={product && product.title}
                         control={form.control}
                         name="title"
                         render={({ field }) => (
@@ -126,7 +139,6 @@ export default function ProductFormUpdate({
                         )}
                     />
                     <FormField
-                        defaultValue={product && product.price}
                         control={form.control}
                         name="price"
                         render={({ field }) => (
@@ -144,7 +156,6 @@ export default function ProductFormUpdate({
                         )}
                     />
                     <FormField
-                        defaultValue={product && product.category}
                         control={form.control}
                         name="category"
                         render={({ field }) => (
@@ -158,7 +169,6 @@ export default function ProductFormUpdate({
                         )}
                     />
                     <FormField
-                        defaultValue={product && product.image}
                         control={form.control}
                         name="image"
                         render={({ field }) => (
@@ -173,7 +183,6 @@ export default function ProductFormUpdate({
                     />
                 </section>
                 <FormField
-                    defaultValue={product && product.description}
                     control={form.control}
                     name="description"
                     render={({ field }) => (

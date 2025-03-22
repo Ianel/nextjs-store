@@ -1,8 +1,8 @@
 "use client";
 
 import ProductFormUpdate from "@/components/common/ProductFormUpdate";
-import { motion } from "framer-motion";
 import { use } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function DeleteProduct({
     params,
@@ -11,28 +11,30 @@ export default function DeleteProduct({
 }) {
     const { productId } = use(params);
 
+    const {
+        isPending,
+        error,
+        data: product,
+    } = useQuery({
+        queryKey: ["singleProduct"],
+        queryFn: () =>
+            fetch(`https://fakestoreapi.com/products/${productId}`).then(
+                (response) => response.json()
+            ),
+    });
+
+    // console.log(product);
+
     return (
         <section className="p-8 flex flex-col items-center">
-            <motion.h2
-                initial={{ y: -30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1.5 }}
-                className="text-center font-bold"
-            >
-                Edit product
-            </motion.h2>
-            <motion.p
-                initial={{ y: -30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1.5 }}
-                className="my-8"
-            >
+            <h2 className="text-center font-bold">Edit product</h2>
+            <p className="my-8">
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
                 Repudiandae ducimus magni ipsum tempore nostrum corrupti alias,
                 iste debitis voluptas molestiae culpa modi sunt ea delectus
                 illum quas animi aspernatur incidunt?
-            </motion.p>
-            <ProductFormUpdate productId={productId} />
+            </p>
+            <ProductFormUpdate productId={productId} productData={product} />
         </section>
     );
 }
